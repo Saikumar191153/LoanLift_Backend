@@ -391,8 +391,8 @@ def get_corporate_project_detail(request):
 
     role = created_by_user.role
 
-    if role != 'partner':
-        return Response({'success': False, 'message': "Unauthorized access.Only Partner can access this Endpoint"}, status=status.HTTP_403_FORBIDDEN)
+    # if role != 'partner':
+    #     return Response({'success': False, 'message': "Unauthorized access.Only Partner can access this Endpoint"}, status=status.HTTP_403_FORBIDDEN)
 
     try:
         data = CorporateProjectDetails.objects.get(created_by=created_by_user)
@@ -445,6 +445,8 @@ def get_all_applications(request):
             'developer_name': app.developer_name,
             'disbursed_amount': app.disbursed_amount,
             'name_of_closing_agent': app.name_of_closing_agent,
+            'created_at': app.created_at,
+            'modified_at': app.modified_at,
             'created_by': {
                 'id': created_by_user.id,
                 'name': created_by_user.first_name,  # Adjust based on your user model
@@ -659,4 +661,71 @@ def delete_loan_application(request, application_id):
     except Exception as e:
         return Response({'error': str(e), 'success': False}, status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['PUT'])
+def edit_corporate_project(request, project_id):
+    """
+    API to edit an existing corporate project.
+    """
+    payload = check_user_token(request)
+    if not payload:
+        return Response({
+            'success': False,
+            'message': "Try to login again"
+        }, status=status.HTTP_401_UNAUTHORIZED)
+
+    user_id = payload['user_id']
+    try:
+        created_by_user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User with the provided ID does not exist', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+    role = created_by_user.role
+
+    try:
+        # Fetch the existing project
+        corporate_project = CorporateProjectDetails.objects.get(id=project_id)
+    except CorporateProjectDetails.DoesNotExist:
+        return Response({'error': 'Corporate project not found', 'success': False}, status=status.HTTP_404_NOT_FOUND)
+
+    # Optional: Ensure only the creator or an admin can edit
+    # if role != 'partner' and corporate_project.created_by != created_by_user:
+    #     return Response({'success': False, 'message': "Unauthorized access"}, status=status.HTTP_403_FORBIDDEN)
+
+    # Validate input fields
+    allowed_fields = ['corporateName', 'companyPan', 'gstin', 'companyAddress', 'pincode', 'state', 'city']
+    update_fields = {}
+    
+    for field in allowed_fields:
+        if field in request.data:
+            update_fields[field] = request.data[field]
+
+    # Ensure at least one field is being updated
+    if not update_fields:
+        return Response({'error': 'No valid fields provided for update', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Prevent GSTIN duplication
+    if 'gstin' in update_fields and CorporateProjectDetails.objects.filter(gstin=update_fields['gstin']).exclude(id=project_id).exists():
+        return Response({'error': 'A project with this GSTIN already exists', 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Update the corporate project details
+    for key, value in update_fields.items():
+        setattr(corporate_project, key.lower(), value)  # Ensuring correct field naming
+
+    corporate_project.save()
+
+    return Response({
+        'success': True,
+        'message': 'Corporate project updated successfully!',
+        'data': {
+            'id': corporate_project.id,
+            'corporate_name': corporate_project.corporate_name,
+            'company_name': corporate_project.company_name,
+            'gstin': corporate_project.gstin,
+            'company_address': corporate_project.company_address,
+            'pincode': corporate_project.pincode,
+            'state': corporate_project.state,
+            'city': corporate_project.city
+        }
+    }, status=status.HTTP_200_OK)
 

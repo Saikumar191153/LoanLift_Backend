@@ -19,13 +19,24 @@ from django.urls import path
 from django.urls.conf import include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path, re_path
+from django.views.generic import TemplateView
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    # path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
-]
+    re_path(r"^(?!.*\.\w+$).*", TemplateView.as_view(template_name="index.html")),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
+# from django.views.static import serve
 
-# Serve media files only in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# # Serve media files only in development
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#     # urlpatterns += [
+#     #     re_path(r'^(?P<path>.*)$', serve, {
+#     #         'document_root': settings.STATICFILES_DIRS,
+#     #     }),
+#     # ]   
+

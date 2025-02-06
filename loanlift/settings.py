@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'whitenoise',
     'users',
 ]
 
@@ -73,14 +74,18 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'loanlift.urls'
 
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "build")],  # Ensure this line is present
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,6 +97,24 @@ TEMPLATES = [
         },
     },
 ]
+
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [],
+#         'APP_DIRS': True,
+#         'OPTIONS': {
+#             'context_processors': [
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#         },
+#     },
+# ]
+
+# TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "build")]  # Angular's templates
 
 WSGI_APPLICATION = 'loanlift.wsgi.application'
 
@@ -113,6 +136,9 @@ DATABASES = {
         'PASSWORD': 'root@123',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'unix_socket': '/tmp/mysql.sock',  # Add this line
+        },
     }
 }
 
@@ -157,8 +183,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
+# STATIC_ROOT = os.path.join(BASE_DIR, "build")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "build/static"),
+]
 
+
+# STATIC_URL = "/build/"
+# STATICFILES_DIRS = [
+#     # os.path.join(BASE_DIR, "build", "static"), 
+#     os.path.join(BASE_DIR, "build"), # Angular's static files
+# ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
