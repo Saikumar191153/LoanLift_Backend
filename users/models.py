@@ -99,7 +99,9 @@ class LoanApplication(models.Model):
     bank_statement = models.FileField(upload_to='', blank=True, null=True)
     itr = models.FileField(upload_to='', blank=True, null=True)
     salary_slips = models.JSONField(blank=True, null=True)  
-
+    flat_no = models.CharField(max_length=50,null=True)
+    block_no = models.CharField(max_length=50,null=True)
+    payout_percentage = models.IntegerField(null=True)
     
     class Meta:
         managed = False,

@@ -211,7 +211,9 @@ def add_loan_application(request):
         loan_product = request.data.get("loanProduct", ""),
         loan_amount = request.data.get("loanAmount", 0),
         loan_tenure = request.data.get("loanTenure", 0),
-        name_of_closing_agent = request.data.get("closingManager", ""),
+        project_name = request.data.get("projectName", ""),
+        flat_no = request.data.get("flatNo", ""),
+        block_no = request.data.get("blockNo", ""),
         loan_status = request.data.get("loan_status", "IN-PROGRESS"),
         created_by = created_by_user
         )
@@ -444,7 +446,8 @@ def get_all_applications(request):
             'loan_status': app.loan_status,
             'developer_name': app.developer_name,
             'disbursed_amount': app.disbursed_amount,
-            'name_of_closing_agent': app.name_of_closing_agent,
+            'project_name': app.project_name,
+            'payout_percentage': app.payout_percentage,
             'created_at': app.created_at,
             'modified_at': app.modified_at,
             'created_by': {
@@ -564,10 +567,13 @@ def update_loan_application(request, application_id):
             "loanProduct": "loan_product",
             "loanAmount": "loan_amount",
             "loanTenure": "loan_tenure",
-            "closingManager": "name_of_closing_agent",
             "loan_status": "loan_status",
             "developer_name": "developer_name",
-            "disbursed_amount": "disbursed_amount"
+            "disbursed_amount": "disbursed_amount",
+            "payout_percentage": "payout_percentage",
+            "flatNo": "flat_no",
+            "blockNo": "block_no",
+            "project_name": "project_name",
         }
 
         # Update loan application fields based on mapping
