@@ -136,9 +136,6 @@ DATABASES = {
         'PASSWORD': 'root@123',
         'HOST': 'localhost',
         'PORT': '3306',
-        'OPTIONS': {
-            'unix_socket': '/tmp/mysql.sock',  # Add this line
-        },
     }
 }
 
